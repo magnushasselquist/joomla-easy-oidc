@@ -1,5 +1,5 @@
 .DS_Store
 composer.phar
 dist/
-plg_system_easyoidc/composer.lock
-plg_system_easyoidc/vendor/
+plg_system_hqoidc/composer.lock
+plg_system_hqoidc/vendor/

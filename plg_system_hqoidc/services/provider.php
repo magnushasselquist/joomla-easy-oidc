@@ -1,6 +1,6 @@
 <?php
 /**
- * @package     plg_system_easyoidc
+ * @package     plg_system_hqoidc
  * @copyright   (C) 2026 Mälarscouterna
  * @license     GPL-2.0-or-later
  */
@@ -13,7 +13,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 use Joomla\Event\DispatcherInterface;
-use Joomla\Plugin\System\EasyOidc\Extension\EasyOidc;
+use Joomla\Plugin\System\HqOidc\Extension\HqOidc;
 
 return new class () implements ServiceProviderInterface {
     public function register(Container $container): void
@@ -21,10 +21,10 @@ return new class () implements ServiceProviderInterface {
         $container->set(
             PluginInterface::class,
             function (Container $container) {
-                $config  = (array) PluginHelper::getPlugin('system', 'easyoidc');
+                $config  = (array) PluginHelper::getPlugin('system', 'hqoidc');
                 $subject = $container->get(DispatcherInterface::class);
 
-                $plugin = new EasyOidc($subject, $config);
+                $plugin = new HqOidc($subject, $config);
                 $plugin->setApplication(Factory::getApplication());
 
                 return $plugin;

@@ -1,11 +1,11 @@
 <?php
 /**
- * @package     plg_system_easyoidc
+ * @package     plg_system_hqoidc
  * @copyright   (C) 2026 Magnus Hasselquist
  * @license     GPL-2.0-or-later
  */
 
-namespace Joomla\Plugin\System\EasyOidc\Extension;
+namespace Joomla\Plugin\System\HqOidc\Extension;
 
 \defined('_JEXEC') or die;
 
@@ -26,18 +26,18 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Event\SubscriberInterface;
 
 /**
- * Easy OIDC system plugin.
+ * HQ OIDC system plugin.
  *
  * Handles OIDC authentication against an external IdP (designed for Keycloak)
  * via three custom URLs:
- *   index.php?option=easyoidc&task=login
- *   index.php?option=easyoidc&task=callback
- *   index.php?option=easyoidc&task=logout
+ *   index.php?option=hqoidc&task=login
+ *   index.php?option=hqoidc&task=callback
+ *   index.php?option=hqoidc&task=logout
  */
-final class EasyOidc extends CMSPlugin implements SubscriberInterface
+final class HqOidc extends CMSPlugin implements SubscriberInterface
 {
-    private const SESSION_RETURN   = 'easyoidc.return';
-    private const SESSION_ID_TOKEN = 'easyoidc.id_token';
+    private const SESSION_RETURN   = 'hqoidc.return';
+    private const SESSION_ID_TOKEN = 'hqoidc.id_token';
 
     protected $autoloadLanguage = true;
 
@@ -57,7 +57,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        if ($app->getInput()->getCmd('option') !== 'easyoidc') {
+        if ($app->getInput()->getCmd('option') !== 'hqoidc') {
             return;
         }
 
@@ -77,12 +77,12 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
                     $this->handleLogout($app);
                     break;
                 default:
-                    $app->enqueueMessage(Text::_('PLG_SYSTEM_EASYOIDC_ERR_UNKNOWN_TASK'), 'error');
+                    $app->enqueueMessage(Text::_('PLG_SYSTEM_HQOIDC_ERR_UNKNOWN_TASK'), 'error');
                     $app->redirect(Uri::root());
             }
         } catch (\Throwable $e) {
             $this->log('OIDC failure: ' . $e->getMessage(), Log::ERROR);
-            $app->enqueueMessage(Text::_('PLG_SYSTEM_EASYOIDC_ERR_SIGN_IN_FAILED'), 'error');
+            $app->enqueueMessage(Text::_('PLG_SYSTEM_HQOIDC_ERR_SIGN_IN_FAILED'), 'error');
             $app->redirect(Uri::root());
         }
     }
@@ -204,7 +204,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
                 implode(',', $this->claimKeys($claims))
             ), Log::WARNING);
 
-            $app->enqueueMessage(Text::_('PLG_SYSTEM_EASYOIDC_ERR_USER_NOT_PROVISIONED'), 'warning');
+            $app->enqueueMessage(Text::_('PLG_SYSTEM_HQOIDC_ERR_USER_NOT_PROVISIONED'), 'warning');
             $app->redirect(Uri::root());
 
             return;
@@ -214,7 +214,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
 
         if ($user->block) {
             $this->log('Blocked user attempted OIDC login: id=' . (int) $user->id . ' username=' . $user->username, Log::WARNING);
-            $app->enqueueMessage(Text::_('PLG_SYSTEM_EASYOIDC_ERR_USER_BLOCKED'), 'error');
+            $app->enqueueMessage(Text::_('PLG_SYSTEM_HQOIDC_ERR_USER_BLOCKED'), 'error');
             $app->redirect(Uri::root());
 
             return;
@@ -227,7 +227,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
             'action'       => 'core.login.site',
             'remember'     => true,
             'silent'       => true,
-            'responseType' => 'easyoidc',
+            'responseType' => 'hqoidc',
             'autoregister' => false,
         ];
 
@@ -237,7 +237,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
         // which plg_user_joomla handles by establishing the Joomla session.
         $response                 = new \stdClass();
         $response->status         = Authentication::STATUS_SUCCESS;
-        $response->type           = 'easyoidc';
+        $response->type           = 'hqoidc';
         $response->username       = $user->username;
         $response->email          = $user->email;
         $response->fullname       = $user->name;
@@ -289,7 +289,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
         $scopes       = (string) $this->params->get('scopes', 'openid profile email');
 
         if ($issuer === '' || $clientId === '') {
-            throw new OpenIDConnectClientException('Easy OIDC is not configured (issuer_url and client_id required)');
+            throw new OpenIDConnectClientException('HQ OIDC is not configured (issuer_url and client_id required)');
         }
 
         $client = new OpenIDConnectClient($issuer, $clientId, $clientSecret ?: null);
@@ -308,7 +308,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
 
     private function callbackUrl(): string
     {
-        return rtrim(Uri::root(), '/') . '/index.php?option=easyoidc&task=callback';
+        return rtrim(Uri::root(), '/') . '/index.php?option=hqoidc&task=callback';
     }
 
     private function claim(array|object|null $claims, string $key): ?string
@@ -435,7 +435,7 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
         $autoload = __DIR__ . '/../../vendor/autoload.php';
 
         if (!is_file($autoload)) {
-            throw new \RuntimeException('Easy OIDC vendor/ is missing — reinstall the plugin package');
+            throw new \RuntimeException('HQ OIDC vendor/ is missing — reinstall the plugin package');
         }
 
         require_once $autoload;
@@ -450,13 +450,13 @@ final class EasyOidc extends CMSPlugin implements SubscriberInterface
         static $registered = false;
         if (!$registered) {
             Log::addLogger(
-                ['text_file' => 'easyoidc.log'],
+                ['text_file' => 'hqoidc.log'],
                 Log::ALL,
-                ['plg_system_easyoidc']
+                ['plg_system_hqoidc']
             );
             $registered = true;
         }
 
-        Log::add($message, $priority, 'plg_system_easyoidc');
+        Log::add($message, $priority, 'plg_system_hqoidc');
     }
 }

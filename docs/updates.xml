@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <updates>
     <update>
-        <name>Easy OIDC</name>
+        <name>HQ OIDC</name>
         <description>Minimal Joomla OIDC SSO plugin (Keycloak-tested).</description>
-        <element>easyoidc</element>
+        <element>hqoidc</element>
         <type>plugin</type>
         <folder>system</folder>
         <client>0</client>
         <version>1.0.0</version>
-        <infourl title="Easy OIDC on GitHub">https://github.com/magnushasselquist/joomla-easy-oidc</infourl>
+        <infourl title="HQ OIDC on GitHub">https://github.com/magnushasselquist/joomla-hq-oidc</infourl>
         <downloads>
-            <downloadurl type="full" format="zip">https://github.com/magnushasselquist/joomla-easy-oidc/releases/download/v1.0.0/plg_system_easyoidc-1.0.0.zip</downloadurl>
+            <downloadurl type="full" format="zip">https://github.com/magnushasselquist/joomla-hq-oidc/releases/download/v1.0.0/plg_system_hqoidc-1.0.0.zip</downloadurl>
         </downloads>
         <targetplatform name="joomla" version="(5|6)\.[0-9]+"/>
         <php_minimum>8.1</php_minimum>

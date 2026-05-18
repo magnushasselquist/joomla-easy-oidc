@@ -1,4 +1,4 @@
-# Easy OIDC — minimal Joomla SSO plugin
+# HQ OIDC — minimal Joomla SSO plugin
 
 A small Joomla system plugin that authenticates users against an OpenID Connect
 identity provider (designed for Keycloak, but standards-compliant so it works
@@ -23,7 +23,7 @@ Designed to run on **Joomla 5** today and stay compatible with **Joomla 6**
 ## What it deliberately does *not* do
 
 - No login button module. You build your own button as a plain HTML link
-  pointing at `/index.php?option=easyoidc&task=login`.
+  pointing at `/index.php?option=hqoidc&task=login`.
 - No group/role mapping from Keycloak claims (yet). Auto-created users get the
   configured default group.
 - No multi-IdP support. One plugin, one IdP.
@@ -32,18 +32,18 @@ Designed to run on **Joomla 5** today and stay compatible with **Joomla 6**
 
 ## Installing
 
-1. Download the latest release `plg_system_easyoidc-x.y.z.zip` from
-   [GitHub Releases](https://github.com/magnushasselquist/joomla-easy-oidc/releases)
+1. Download the latest release `plg_system_hqoidc-x.y.z.zip` from
+   [GitHub Releases](https://github.com/magnushasselquist/joomla-hq-oidc/releases)
    (or run `./build.sh` from the repo).
 2. In Joomla admin → **System → Install → Extensions** → upload the zip.
-3. Enable **System - Easy OIDC** under **System → Plugins**.
+3. Enable **System - HQ OIDC** under **System → Plugins**.
 
 Once installed, Joomla's built-in extension updater will pick up new releases
 automatically (the plugin manifest declares an update server).
 
 ## Configuring
 
-In Joomla admin → **System → Plugins → System - Easy OIDC**:
+In Joomla admin → **System → Plugins → System - HQ OIDC**:
 
 | Setting | What to put |
 | --- | --- |
@@ -57,7 +57,7 @@ In Joomla admin → **System → Plugins → System - Easy OIDC**:
 **Keycloak client setup:**
 
 - *Client authentication*: On (confidential) or Off (public + PKCE).
-- *Valid redirect URIs*: `https://your-joomla-site.example/index.php?option=easyoidc&task=callback`
+- *Valid redirect URIs*: `https://your-joomla-site.example/index.php?option=hqoidc&task=callback`
 - *Valid post-logout redirect URIs*: `https://your-joomla-site.example/` (or whatever you
   set in "Post-logout URL")
 - Scopes: `openid`, `profile`, `email`.
@@ -67,7 +67,7 @@ In Joomla admin → **System → Plugins → System - Easy OIDC**:
 Anywhere in your Joomla content, module, or template, add a link:
 
 ```html
-<a class="btn btn-primary" href="/index.php?option=easyoidc&task=login">
+<a class="btn btn-primary" href="/index.php?option=hqoidc&task=login">
     Sign in with Scouterna ID
 </a>
 ```
@@ -76,7 +76,7 @@ Optionally pass a `return` query parameter to redirect the user back to a
 specific page after login:
 
 ```html
-<a href="/index.php?option=easyoidc&task=login&return=/medlemmar">
+<a href="/index.php?option=hqoidc&task=login&return=/medlemmar">
     Sign in
 </a>
 ```
@@ -84,7 +84,7 @@ specific page after login:
 Logout link:
 
 ```html
-<a href="/index.php?option=easyoidc&task=logout">Sign out</a>
+<a href="/index.php?option=hqoidc&task=logout">Sign out</a>
 ```
 
 This triggers RP-initiated single logout when enabled; otherwise just a normal
@@ -94,9 +94,9 @@ Joomla logout.
 
 | URL | Purpose |
 | --- | --- |
-| `/index.php?option=easyoidc&task=login` | Start auth code + PKCE flow, redirect to IdP. Honors `?return=<safe-relative-url>`. |
-| `/index.php?option=easyoidc&task=callback` | OIDC redirect URI. Validates the ID token, matches/creates user, signs them into Joomla. |
-| `/index.php?option=easyoidc&task=logout` | Joomla logout, then RP-initiated logout at the IdP if enabled. |
+| `/index.php?option=hqoidc&task=login` | Start auth code + PKCE flow, redirect to IdP. Honors `?return=<safe-relative-url>`. |
+| `/index.php?option=hqoidc&task=callback` | OIDC redirect URI. Validates the ID token, matches/creates user, signs them into Joomla. |
+| `/index.php?option=hqoidc&task=logout` | Joomla logout, then RP-initiated logout at the IdP if enabled. |
 
 ## Building the package zip
 
@@ -104,10 +104,10 @@ Requirements: PHP 8.1+, `php composer.phar` (one comes bundled at the repo root)
 
 ```sh
 ./build.sh
-# → ./dist/plg_system_easyoidc-<version>.zip
+# → ./dist/plg_system_hqoidc-<version>.zip
 ```
 
-The script reads the version from `plg_system_easyoidc/easyoidc.xml`,
+The script reads the version from `plg_system_hqoidc/hqoidc.xml`,
 regenerates `vendor/` with `--no-dev --optimize-autoloader`, and zips up the
 installable plugin (stripping vendor `tests/`, `docs/`, dotfiles, etc.).
 
@@ -115,24 +115,24 @@ installable plugin (stripping vendor `tests/`, `docs/`, dotfiles, etc.).
 
 The release process is fully manual — no CI yet. To cut version `x.y.z`:
 
-1. Bump `<version>x.y.z</version>` in `plg_system_easyoidc/easyoidc.xml`.
+1. Bump `<version>x.y.z</version>` in `plg_system_hqoidc/hqoidc.xml`.
 2. In `docs/updates.xml`, bump both `<version>` and the `<downloadurl>` (the
    `v<x.y.z>` segment and the `-x.y.z.zip` filename must match the new tag).
-3. `./build.sh` → produces `dist/plg_system_easyoidc-x.y.z.zip`.
+3. `./build.sh` → produces `dist/plg_system_hqoidc-x.y.z.zip`.
 4. Commit and push:
    ```sh
-   git add plg_system_easyoidc/easyoidc.xml docs/updates.xml
+   git add plg_system_hqoidc/hqoidc.xml docs/updates.xml
    git commit -m "Release vx.y.z"
    git push
    ```
 5. Create the GitHub release with the zip attached:
    ```sh
-   gh release create vx.y.z dist/plg_system_easyoidc-x.y.z.zip \
+   gh release create vx.y.z dist/plg_system_hqoidc-x.y.z.zip \
        --title "vx.y.z" --notes "Release notes here"
    ```
 
 Once the release is published, GitHub Pages serves the updated
-`updates.xml` at <https://magnushasselquist.github.io/joomla-easy-oidc/updates.xml>
+`updates.xml` at <https://magnushasselquist.github.io/joomla-hq-oidc/updates.xml>
 (usually within a minute). Existing Joomla installations running the previous
 version will pick up the new release through Joomla's built-in extension
 updater.
@@ -141,8 +141,8 @@ updater.
 
 - The `<downloadurl>` in `updates.xml` and the GitHub release tag must agree on
   the exact `vx.y.z` form (with the `v` prefix).
-- `<element>easyoidc</element>` and `<folder>system</folder>` in `updates.xml`
-  must keep matching the plugin name in `easyoidc.xml` — Joomla uses these to
+- `<element>hqoidc</element>` and `<folder>system</folder>` in `updates.xml`
+  must keep matching the plugin name in `hqoidc.xml` — Joomla uses these to
   pair an installed plugin to its update feed.
 - `vendor/`, `composer.lock`, and `dist/` are gitignored. Don't commit them by
   accident.
@@ -150,7 +150,7 @@ updater.
 ## Troubleshooting
 
 - Enable **Debug log** in plugin params; failures go to
-  `administrator/logs/easyoidc.log`.
+  `administrator/logs/hqoidc.log`.
 - "No matching Joomla account was found" — provisioning is `match_only` and no
   Joomla user matches the IdP claim. Either create the Joomla user with the
   matching username/email, or flip provisioning to `auto-create`.

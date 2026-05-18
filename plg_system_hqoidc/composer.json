@@ -1,5 +1,5 @@
 {
-    "name": "magnushasselquist/plg-system-easyoidc",
+    "name": "magnushasselquist/plg-system-hqoidc",
     "description": "Minimal Joomla 5/6 OIDC SSO plugin (Keycloak-tested). Auth code + PKCE, match-only or auto-create users, RP-initiated single logout.",
     "type": "joomla-plugin",
     "license": "GPL-2.0-or-later",

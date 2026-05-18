@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="system" method="upgrade">
+    <name>plg_system_hqoidc</name>
+    <author>Magnus Hasselquist</author>
+    <creationDate>2026-05</creationDate>
+    <copyright>(C) 2026 Magnus Hasselquist</copyright>
+    <license>GPL-2.0-or-later</license>
+    <authorEmail>magnus.hasselquist@gmail.com</authorEmail>
+    <authorUrl>https://github.com/magnushasselquist/joomla-hq-oidc</authorUrl>
+    <version>1.0.0</version>
+    <description>PLG_SYSTEM_HQOIDC_XML_DESCRIPTION</description>
+    <namespace path="src">Joomla\Plugin\System\HqOidc</namespace>
+
+    <updateservers>
+        <server type="extension" priority="1" name="HQ OIDC Updates">https://magnushasselquist.github.io/joomla-hq-oidc/updates.xml</server>
+    </updateservers>
+
+    <files>
+        <folder plugin="hqoidc">services</folder>
+        <folder>src</folder>
+        <folder>vendor</folder>
+    </files>
+
+    <languages>
+        <language tag="en-GB">language/en-GB/plg_system_hqoidc.ini</language>
+        <language tag="en-GB">language/en-GB/plg_system_hqoidc.sys.ini</language>
+        <language tag="sv-SE">language/sv-SE/plg_system_hqoidc.ini</language>
+        <language tag="sv-SE">language/sv-SE/plg_system_hqoidc.sys.ini</language>
+    </languages>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic" label="PLG_SYSTEM_HQOIDC_FIELDSET_BASIC">
+
+                <field name="issuer_url" type="url"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_ISSUER_URL"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_ISSUER_URL_DESC"
+                       default="https://dev.id.scouterna.se/realms/scoutnet"
+                       filter="url" required="true"/>
+
+                <field name="client_id" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_CLIENT_ID"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_CLIENT_ID_DESC"
+                       required="true"/>
+
+                <field name="client_secret" type="password"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_CLIENT_SECRET"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_CLIENT_SECRET_DESC"
+                       autocomplete="off"/>
+
+                <field name="scopes" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_SCOPES"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_SCOPES_DESC"
+                       default="openid profile email"/>
+
+                <field name="match_field" type="list"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_MATCH_FIELD"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_MATCH_FIELD_DESC"
+                       default="username">
+                    <option value="username">PLG_SYSTEM_HQOIDC_OPT_MATCH_USERNAME</option>
+                    <option value="email">PLG_SYSTEM_HQOIDC_OPT_MATCH_EMAIL</option>
+                </field>
+
+                <field name="provisioning" type="list"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_PROVISIONING"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_PROVISIONING_DESC"
+                       default="match_only">
+                    <option value="match_only">PLG_SYSTEM_HQOIDC_OPT_PROV_MATCH_ONLY</option>
+                    <option value="auto_create">PLG_SYSTEM_HQOIDC_OPT_PROV_AUTO_CREATE</option>
+                </field>
+
+                <field name="default_user_group" type="usergroup"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_DEFAULT_GROUP"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_DEFAULT_GROUP_DESC"
+                       default="2"
+                       multiple="false"/>
+
+                <field name="single_logout" type="radio" layout="joomla.form.field.radio.switcher"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_SINGLE_LOGOUT"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_SINGLE_LOGOUT_DESC"
+                       default="1">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+            </fieldset>
+
+            <fieldset name="advanced" label="PLG_SYSTEM_HQOIDC_FIELDSET_ADVANCED">
+
+                <field name="claim_username" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_CLAIM_USERNAME"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_CLAIM_USERNAME_DESC"
+                       default="preferred_username"/>
+
+                <field name="claim_email" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_CLAIM_EMAIL"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_CLAIM_EMAIL_DESC"
+                       default="email"/>
+
+                <field name="claim_name" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_CLAIM_NAME"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_CLAIM_NAME_DESC"
+                       default="name"/>
+
+                <field name="post_login_url" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_POST_LOGIN_URL"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_POST_LOGIN_URL_DESC"
+                       default="/"/>
+
+                <field name="post_logout_url" type="text"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_POST_LOGOUT_URL"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_POST_LOGOUT_URL_DESC"
+                       default="/"/>
+
+                <field name="debug_log" type="radio" layout="joomla.form.field.radio.switcher"
+                       label="PLG_SYSTEM_HQOIDC_FIELD_DEBUG_LOG"
+                       description="PLG_SYSTEM_HQOIDC_FIELD_DEBUG_LOG_DESC"
+                       default="0">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+            </fieldset>
+        </fields>
+    </config>
+</extension>
