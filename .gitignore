@@ -1,0 +1,5 @@
+.DS_Store
+composer.phar
+dist/
+plg_system_easyoidc/composer.lock
+plg_system_easyoidc/vendor/

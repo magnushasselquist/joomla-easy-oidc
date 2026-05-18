@@ -1,0 +1,15 @@
+{
+    "name": "magnushasselquist/plg-system-easyoidc",
+    "description": "Minimal Joomla 5/6 OIDC SSO plugin (Keycloak-tested). Auth code + PKCE, match-only or auto-create users, RP-initiated single logout.",
+    "type": "joomla-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.1",
+        "jumbojett/openid-connect-php": "^1.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}
