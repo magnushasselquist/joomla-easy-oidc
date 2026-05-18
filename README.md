@@ -104,10 +104,48 @@ Requirements: PHP 8.1+, `php composer.phar` (one comes bundled at the repo root)
 
 ```sh
 ./build.sh
-# → ./dist/plg_system_easyoidc-1.0.0.zip
+# → ./dist/plg_system_easyoidc-<version>.zip
 ```
 
-The script regenerates `vendor/` and zips up the installable plugin.
+The script reads the version from `plg_system_easyoidc/easyoidc.xml`,
+regenerates `vendor/` with `--no-dev --optimize-autoloader`, and zips up the
+installable plugin (stripping vendor `tests/`, `docs/`, dotfiles, etc.).
+
+## Releasing a new version
+
+The release process is fully manual — no CI yet. To cut version `x.y.z`:
+
+1. Bump `<version>x.y.z</version>` in `plg_system_easyoidc/easyoidc.xml`.
+2. In `docs/updates.xml`, bump both `<version>` and the `<downloadurl>` (the
+   `v<x.y.z>` segment and the `-x.y.z.zip` filename must match the new tag).
+3. `./build.sh` → produces `dist/plg_system_easyoidc-x.y.z.zip`.
+4. Commit and push:
+   ```sh
+   git add plg_system_easyoidc/easyoidc.xml docs/updates.xml
+   git commit -m "Release vx.y.z"
+   git push
+   ```
+5. Create the GitHub release with the zip attached:
+   ```sh
+   gh release create vx.y.z dist/plg_system_easyoidc-x.y.z.zip \
+       --title "vx.y.z" --notes "Release notes here"
+   ```
+
+Once the release is published, GitHub Pages serves the updated
+`updates.xml` at <https://magnushasselquist.github.io/joomla-easy-oidc/updates.xml>
+(usually within a minute). Existing Joomla installations running the previous
+version will pick up the new release through Joomla's built-in extension
+updater.
+
+### Things that are easy to forget
+
+- The `<downloadurl>` in `updates.xml` and the GitHub release tag must agree on
+  the exact `vx.y.z` form (with the `v` prefix).
+- `<element>easyoidc</element>` and `<folder>system</folder>` in `updates.xml`
+  must keep matching the plugin name in `easyoidc.xml` — Joomla uses these to
+  pair an installed plugin to its update feed.
+- `vendor/`, `composer.lock`, and `dist/` are gitignored. Don't commit them by
+  accident.
 
 ## Troubleshooting
 
