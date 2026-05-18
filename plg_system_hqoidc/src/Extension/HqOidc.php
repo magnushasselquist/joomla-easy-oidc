@@ -147,19 +147,48 @@ final class HqOidc extends CMSPlugin implements SubscriberInterface
         $this->log('login: received return param = ' . ($return ?? '(null)'));
 
         if ($return !== null && $return !== '') {
-            $decoded   = base64_decode($return, true);
-            $candidate = $decoded !== false ? $decoded : $return;
-            $safe      = $this->isSafeReturnUrl($candidate);
+            // If the value already looks like a URL (relative path starting with /,
+            // or absolute http/https), use it as-is. Otherwise attempt a base64
+            // decode — Joomla's own login flows pass return URLs in base64. A
+            // raw relative path like "/foo/bar" can be coincidentally valid
+            // base64, so the URL-shape check must come first.
+            $looksLikeUrl = str_starts_with($return, '/') || preg_match('#^https?://#i', $return) === 1;
+
+            if ($looksLikeUrl) {
+                $candidate = $return;
+                $usedBase64 = false;
+            } else {
+                $decoded = base64_decode($return, true);
+                if ($decoded !== false) {
+                    $candidate  = $decoded;
+                    $usedBase64 = true;
+                } else {
+                    $candidate  = $return;
+                    $usedBase64 = false;
+                }
+            }
+
+            $safe = $this->isSafeReturnUrl($candidate);
 
             $this->log(sprintf(
                 'login: candidate=%s base64=%s safe=%s',
                 $candidate,
-                $decoded !== false ? 'yes' : 'no',
+                $usedBase64 ? 'yes' : 'no',
                 $safe ? 'yes' : 'no'
             ));
 
             if ($safe) {
-                $app->getSession()->set(self::SESSION_RETURN, $candidate);
+                // Write directly to $_SESSION (not the Joomla AttributeBag).
+                // jumbojett calls session_write_close() before redirecting to
+                // the IdP. That commits $_SESSION but does NOT serialise
+                // Joomla's AttributeBag — Joomla flushes the bag during its
+                // own shutdown flow, which never reaches us because jumbojett
+                // header()s and exit()s first. So we put the value in the same
+                // place jumbojett puts its own state/nonce/code_verifier.
+                if (session_status() === PHP_SESSION_NONE) {
+                    @session_start();
+                }
+                $_SESSION[self::SESSION_RETURN] = $candidate;
             }
         }
 
@@ -229,17 +258,22 @@ final class HqOidc extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        // Read the post-login return URL out of the session BEFORE triggering
-        // onUserLogin. plg_user_joomla regenerates the session ID on login and
-        // (depending on the session handler) may drop custom keys, so we hold
-        // the value in a local variable for the redirect at the end.
-        $session   = $app->getSession();
-        $returnUrl = $session->get(self::SESSION_RETURN);
-        $session->set(self::SESSION_RETURN, null);
+        // Read the post-login return URL out of $_SESSION (where startLogin
+        // wrote it, deliberately bypassing Joomla's AttributeBag — see the
+        // note in startLogin for the jumbojett/session_write_close reason).
+        // Read it BEFORE triggering onUserLogin too, because plg_user_joomla
+        // regenerates the session ID and may drop custom keys.
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $returnUrl = $_SESSION[self::SESSION_RETURN] ?? null;
+        unset($_SESSION[self::SESSION_RETURN]);
         $this->log('callback: return from session = ' . ($returnUrl ?: '(empty)'));
 
         // Stash the id_token so onUserLogout can do RP-initiated logout later.
-        $session->set(self::SESSION_ID_TOKEN, $client->getIdToken());
+        // Joomla's bag works fine here because we redirect via $app->redirect()
+        // (which runs Joomla's shutdown / bag flush), not jumbojett's redirect.
+        $app->getSession()->set(self::SESSION_ID_TOKEN, $client->getIdToken());
 
         $options = [
             'action'       => 'core.login.site',

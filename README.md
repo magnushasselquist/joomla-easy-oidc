@@ -149,8 +149,10 @@ updater.
 
 ## Troubleshooting
 
-- Enable **Debug log** in plugin params; failures go to
-  `administrator/logs/hqoidc.log`.
+- Enable **Debug log** in plugin params; entries go to `hqoidc.log` in the
+  directory Joomla's `log_path` config points at (Global Configuration →
+  System → Path to Log Folder). Typically that's `administrator/logs/`, but
+  some installs override it.
 - "No matching Joomla account was found" — provisioning is `match_only` and no
   Joomla user matches the IdP claim. Either create the Joomla user with the
   matching username/email, or flip provisioning to `auto-create`.

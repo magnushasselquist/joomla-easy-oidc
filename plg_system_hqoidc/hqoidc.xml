@@ -7,7 +7,7 @@
     <license>GPL-2.0-or-later</license>
     <authorEmail>magnus.hasselquist@gmail.com</authorEmail>
     <authorUrl>https://github.com/magnushasselquist/joomla-hq-oidc</authorUrl>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <description>PLG_SYSTEM_HQOIDC_XML_DESCRIPTION</description>
     <namespace path="src">Joomla\Plugin\System\HqOidc</namespace>
 
