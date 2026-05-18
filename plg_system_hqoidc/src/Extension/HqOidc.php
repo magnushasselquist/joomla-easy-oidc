@@ -144,12 +144,21 @@ final class HqOidc extends CMSPlugin implements SubscriberInterface
     private function startLogin(CMSApplicationInterface $app): void
     {
         $return = $app->getInput()->getString('return');
+        $this->log('login: received return param = ' . ($return ?? '(null)'));
 
         if ($return !== null && $return !== '') {
-            $decoded = base64_decode($return, true);
+            $decoded   = base64_decode($return, true);
             $candidate = $decoded !== false ? $decoded : $return;
+            $safe      = $this->isSafeReturnUrl($candidate);
 
-            if ($this->isSafeReturnUrl($candidate)) {
+            $this->log(sprintf(
+                'login: candidate=%s base64=%s safe=%s',
+                $candidate,
+                $decoded !== false ? 'yes' : 'no',
+                $safe ? 'yes' : 'no'
+            ));
+
+            if ($safe) {
                 $app->getSession()->set(self::SESSION_RETURN, $candidate);
             }
         }
@@ -220,8 +229,17 @@ final class HqOidc extends CMSPlugin implements SubscriberInterface
             return;
         }
 
+        // Read the post-login return URL out of the session BEFORE triggering
+        // onUserLogin. plg_user_joomla regenerates the session ID on login and
+        // (depending on the session handler) may drop custom keys, so we hold
+        // the value in a local variable for the redirect at the end.
+        $session   = $app->getSession();
+        $returnUrl = $session->get(self::SESSION_RETURN);
+        $session->set(self::SESSION_RETURN, null);
+        $this->log('callback: return from session = ' . ($returnUrl ?: '(empty)'));
+
         // Stash the id_token so onUserLogout can do RP-initiated logout later.
-        $app->getSession()->set(self::SESSION_ID_TOKEN, $client->getIdToken());
+        $session->set(self::SESSION_ID_TOKEN, $client->getIdToken());
 
         $options = [
             'action'       => 'core.login.site',
@@ -253,14 +271,16 @@ final class HqOidc extends CMSPlugin implements SubscriberInterface
 
         $app->triggerEvent('onUserAfterLogin', [$options]);
 
-        $session = $app->getSession();
-        $returnUrl = $session->get(self::SESSION_RETURN);
-        $session->set(self::SESSION_RETURN, null);
-
         if (!$returnUrl || !$this->isSafeReturnUrl($returnUrl)) {
+            $this->log(
+                'callback: falling back to post_login_url (return was '
+                . ($returnUrl ? 'rejected by isSafeReturnUrl: ' . $returnUrl : 'empty')
+                . ')'
+            );
             $returnUrl = $this->params->get('post_login_url', '/') ?: '/';
         }
 
+        $this->log('callback: redirecting to ' . $returnUrl);
         $app->redirect($this->absoluteUrl($returnUrl));
     }
 
